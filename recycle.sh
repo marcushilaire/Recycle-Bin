@@ -15,7 +15,7 @@ fi
 }
 
 #Take in Arugments.
-handleArgs(){
+handleOpts(){
     while getopts 'ehxuz' OPTION; 
     do case $OPTION in
         e) echo option selected e;;
@@ -27,9 +27,10 @@ handleArgs(){
     esac
     done
     shift "$(($OPTIND -1))"
+    echo $*
 }
 
-handleArgs $@
+handleOpts $@
 
 
 #Move the listed files to the dump
@@ -53,6 +54,4 @@ cat $dump/tracker.info |grep bye
 #
 
 # handle duplicate file names 
-# handleArgs $@
-echo $@
 # checkGarbage
