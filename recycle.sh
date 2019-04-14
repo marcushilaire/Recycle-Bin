@@ -1,5 +1,4 @@
 #!/bin/bash
-
 dump=`dirname $0`/garbage
 
 #Create the garbage folder if it does not exist
@@ -16,17 +15,22 @@ fi
 }
 
 #Take in Arugments.
-
-
-
-moveByArgs (){
-    #not using this but do not delete
-    #ask for a refresher on scope because i do not want to just run a for loop on moveFile
-    for i in `seq $#`
-        do 
-            echo hello $i
-        done
+handleArgs(){
+    while getopts 'ehxuz' OPTION; 
+    do case $OPTION in
+        e) echo option selected e;;
+        h) echo option selected h;;
+        x) echo option selected u;;
+        u) echo option selected x;;
+        z) echo option selected h ;;
+        ?) echo "script usage: $(basename $0) [-l] [-h] [-a somevalue]" 
+    esac
+    done
+    shift "$(($OPTIND -1))"
 }
+
+handleArgs $@
+
 
 #Move the listed files to the dump
 moveFile (){
@@ -49,5 +53,6 @@ cat $dump/tracker.info |grep bye
 #
 
 # handle duplicate file names 
-
+# handleArgs $@
+echo $@
 # checkGarbage
