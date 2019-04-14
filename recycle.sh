@@ -14,7 +14,7 @@ if [ ! -d ./garbage ]
 fi
 }
 
-#Take in Arugments.
+#Parse through arguments and handle the option flags
 handleOpts(){
     while getopts 'ehxuz' OPTION; 
     do case $OPTION in
@@ -23,11 +23,11 @@ handleOpts(){
         x) echo option selected u;;
         u) echo option selected x;;
         z) echo option selected h ;;
-        ?) echo "script usage: $(basename $0) [-l] [-h] [-a somevalue]" 
+        ?) echo you selected no options, these are the remaining arguments: $*
     esac
     done
     shift "$(($OPTIND -1))"
-    echo $*
+    # echo $* #references all arguments that ARE NOT options parsed here
 }
 
 handleOpts $@
