@@ -3,16 +3,15 @@ dump=`dirname $0`/garbage
 #Parse through arguments and handle the option flags
 while getopts ':ehxuz' OPTION; 
     do case $OPTION in
-        e) echo option selected e
-        e=true
+        e) e=true
         ;;
-        h) echo option selected h
-        h=true
+        h) h=true
         ;;
         \?) echo not a valid option
         ;;
     esac
 done
+
 shift "$(($OPTIND -1))"
 
 main () {
@@ -39,18 +38,26 @@ if [ ! -d ./garbage ]
     else
         echo garbage exists
 fi
+
+
 }
 
-
-
-
-#Move the listed files to the dump
+#Move the listed files to the dump and record their original location
 moveFile (){
-    mv $1 $dump
-    echo recycling $1
+    for i in $@
+    do
+        if [ -f $i ]
+        then
+            echo `pwd`/$i >> $dump/tracker.info
+            echo `ls -sh $i`
+        else
+            echo $i is not a valid file 
+        fi
+    done
 }
-moveFile $@
 
+moveFile $@
+# echo
 #List all files in the recycle bin along with their size
 listFiles(){
     ls -sh $dump
