@@ -37,7 +37,7 @@ main
 
 #Create the garbage folder if it does not exist
     #Should also touch the Tracker file
-checkGarbage (){
+initiateGarbage (){
 if [ ! -d ./garbage ]
     then
         mkdir $dump
@@ -48,6 +48,11 @@ if [ ! -d ./garbage ]
 fi
 }
 
+#check to see if a file exists in garbage
+checkGarbage(){
+    # [ ]
+}
+
 #Move the listed files to the dump and record their original location
 recycleFile (){
     for i in $@
@@ -56,13 +61,14 @@ recycleFile (){
         then
             echo `pwd`/$i >> $dump/tracker.info
             echo `ls -shc $i`
+            mv -d
         else
             echo $i is not a valid file 
         fi
     done
 }
 
-# recycleFile $@
+recycleFile $@
 # echo
 #List all files in the recycle bin along with their size
 listFiles(){
@@ -77,5 +83,3 @@ cat $dump/tracker.info |grep bye
 }  
 #
 
-# handle duplicate file names 
-# checkGarbage
