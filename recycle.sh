@@ -39,14 +39,14 @@ checkGarbage (){
 
 #Move the listed files to the dump and record their original location
 recycleFile (){
-        if [[ -f $1 || -d $1 ]]
-        then
-            mv $1 $dump
-            echo `pwd`/$1 >> $dump/tracker.info
-            echo `ls -shc $1`
-        else
-            echo $1 is not a valid file 
-        fi
+    if [[ -f $1 || -d $1 ]]
+    then
+        mv $1 $dump
+        echo `pwd`/$1 >> $dump/tracker.info
+        echo `ls -shc $1`
+    else
+        echo $1 is not a valid file 
+    fi
 }
 
 #List all files in the recycle bin along with their size
@@ -54,13 +54,12 @@ listFiles(){
     ls -sh $dump
 }
 
-#Create a file that records the original location of the file
-    #Restore based on parsing throug that file
-        #Cat through then pipe into a grep or awk
-trackLocation(){
-cat $dump/tracker.info |grep bye
+findOrigin(){
+    local origin
+    origin=`cat $dump/tracker.info |grep $1`
+    echo set from variable
+    return $origin
 }  
-#
 
 main () {
     if [[ $l && $e ]]
@@ -76,5 +75,8 @@ main () {
         fi
     done
 }
-main $@
+# main $@
+
+# findOrigin $1
+echo $findOrigin $1
 
