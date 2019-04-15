@@ -1,12 +1,14 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
 #Parse through arguments and handle the option flags
-while getopts ':ehxuz' OPTION; 
+while getopts ':le' OPTION; 
     do case $OPTION in
-        e) e=true
+        l) l=true #listing all files in the recycle bin
         ;;
-        h) h=true
+        e) e=true #empty all files in recycle bin
         ;;
+       # le) echo l and h are mutually exclusive, exiting.
+       # ;; this does not seem to work here. handling later in the script
         \?) echo not a valid option
         ;;
     esac
@@ -15,13 +17,19 @@ done
 shift "$(($OPTIND -1))"
 
 main () {
+    if [[ $l && $e ]]
+    then echo l and e are mutually exclusive, exiting
+    exit 1
+    fi
+    
+    if [ $l ]
+    then
+        echo l set to true
+    fi
+
     if [ $e ]
     then
-        echo e set to true
-    fi
-    if [ $h ]
-    then
-        echo h is set to true
+        echo e is set to true
     fi
 }
 main
@@ -38,25 +46,23 @@ if [ ! -d ./garbage ]
     else
         echo garbage exists
 fi
-
-
 }
 
 #Move the listed files to the dump and record their original location
-moveFile (){
+recycleFile (){
     for i in $@
     do
-        if [ -f $i ]
+        if [[ -f $i || -d $i ]]
         then
             echo `pwd`/$i >> $dump/tracker.info
-            echo `ls -sh $i`
+            echo `ls -shc $i`
         else
             echo $i is not a valid file 
         fi
     done
 }
 
-moveFile $@
+# recycleFile $@
 # echo
 #List all files in the recycle bin along with their size
 listFiles(){
