@@ -57,10 +57,12 @@ listFiles(){
 findOrigin(){
     local origin
     origin=`cat $dump/tracker.info |grep $1`
-    echo set from variable
     echo $origin
     #return origin does this work like it would in javascript
-}  
+    #it seems to work with echo $origin and echo $(findOrigin $1)
+} 
+
+
 
 main () {
     if [[ $l && $e ]]
@@ -76,7 +78,7 @@ main () {
         fi
     done
 }
-main $@
+# main $@
 
-# findOrigin $1
+echo $(findOrigin $1)
 
