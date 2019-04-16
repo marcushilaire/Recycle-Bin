@@ -2,15 +2,22 @@
 dump=`dirname $0`/garbage
 mode=recycle
 
-while getopts ':pd:' OPTION; 
+usage (){
+    echo $0
+    echo docs go here
+}
+
+while getopts ':hpd:' OPTION; 
     do case $OPTION in
         d) mode=delete; input=$OPTARG;
             if [[ ! $input =~ -[-rfi]{0,3} ]]
             then 
-            help; exit 1
+            usage; exit 1
             fi
         ;; 
         p) mode=put
+        ;;
+        h) usage; exit 1
         ;;
         \?) echo not a valid option; exit 1
         ;;
@@ -82,14 +89,13 @@ deleteFlags (){
     fi
 }
 
-help (){
-    echo 'help me please'
-    echo docs go here
-}
-
-
 main (){
 initiateGarbage
+
+if [[ $# -eq 0 ]]
+then
+    usage; exit 1
+fi
 
 if [[ $mode == 'delete' ]]
 then 
