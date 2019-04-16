@@ -70,8 +70,6 @@ restoreFile (){
 }
 
 deleteFile (){
-    local origin
-    origin=`echo $(findOrigin $1)`
     rm $dump/$1
     if [[ $? -eq 0 ]]
     then
