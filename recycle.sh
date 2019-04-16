@@ -60,7 +60,15 @@ findOrigin(){
     echo $origin
     #return origin does this work like it would in javascript
     #it seems to work with echo $origin and echo $(findOrigin $1)
-} 
+} #***************** ASK BRIAN ABOUT THIS
+
+restoreFile (){
+    local origin
+    origin=$(findOrigin $1)
+    echo $origin
+    mv $dump/$1 `echo "findOirigin $1"` #not sure why this doesnt work
+    #consider making origin from findOrigin global, using it here then unsetting it
+}
 
 
 
@@ -80,5 +88,4 @@ main () {
 }
 # main $@
 
-echo $(findOrigin $1)
-
+restoreFile $1
