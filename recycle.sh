@@ -1,19 +1,22 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
-#Parse through arguments and handle the option flags
-while getopts ':le' OPTION; 
+
+while getopts ':lem:i' OPTION; 
     do case $OPTION in
         l) l=true #listing all files in the recycle bin
         ;;
-        e) e=true #empty all files in recycle bin
+        e) e=true echo e is selected
+        #empty all files in recycle bin
         ;;
-       # le) echo l and h are mutually exclusive, exiting.
-       # ;; this does not seem to work here. handling later in the script
+        m) echo m is selected; input=$OPTARG
+        echo $input
+        ;;
         \?) echo not a valid option
         ;;
     esac
 done
 shift "$(($OPTIND -1))"
+echo $@
 
 #Create the garbage folder if it does not exist
 initiateGarbage (){
@@ -29,8 +32,6 @@ fi
 checkGarbage (){
     if [[ -f $dump/$1 || -d $dump/$1 ]]
     then 
-        echo $i already exists in your Recycle Bin
-        echo please rename the file you are attempting to recycle
         return 1
     else
         return 0
@@ -38,49 +39,62 @@ checkGarbage (){
 }
 
 #Move the listed files to the dump and record their original location
-recycleFile (){
-    if [[ -f $1 || -d $1 ]]
-    then
-        echo -e `pwd` '\t' $1 >> $dump/tracker.info
-        echo `ls -shc $1`
-        mv $1 $dump
-    else
-        echo $1 is not a valid file 
-    fi
-}
+
 
 #List all files in the recycle bin along with their size
-listFiles(){
+listFiles (){
     ls -sh $dump
 }
 
-findOrigin(){
-    local origin
-    origin=`cat $dump/tracker.info | grep $1 |awk '{print $1}'`
-    echo $origin
+findOrigin (){
+    echo `cat $dump/tracker.info | grep $1 |awk '{print $1}'`
+}
+
+recycleFile (){
+        mv $1 $dump  
+        if [[ $? -eq 0 ]]
+        then
+            echo -e `pwd` '\t' $1 >> $dump/tracker.info
+            echo `ls -shc $dump/$1`
+        fi
 }
 
 restoreFile (){
-    mv $dump/$1 `echo $(findOrigin $1)`
+    local origin
+    origin=`echo $(findOrigin $1)`
+    mv $dump/$1 $origin
+    if [[ $? -eq 0 ]]
+    then
+        sed -i "/$1/d" $dump/tracker.info
+    fi
+}
+
+deleteFile (){
+    local origin
+    origin=`echo $(findOrigin $1)`
+    rm $dump/$1
+    if [[ $? -eq 0 ]]
+    then
+        sed -i "/$1/d" $dump/tracker.info
+    fi
 }
 
 
-
-main () {
-    if [[ $l && $e ]]
-    then echo l and e are mutually exclusive, exiting
-    exit 1
-    fi
+main (){
+    initiateGarbage
 
     for i in $@
     do
         if checkGarbage $i
         then
             recycleFile $i
+        else
+            echo this file alreaedy exists in your recycle bin.
+            echo please rename in order to avoid overwriting.
         fi
+        
     done
 }
 # main $@
 
 # restoreFile $1
-findOrigin $1
