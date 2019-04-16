@@ -1,21 +1,22 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
+mode=recycle
 
 while getopts ':pd:' OPTION; 
     do case $OPTION in
-        d) mode=delete; input=$OPTARG
+        d) mode=delete; input=$OPTARG;
+            if [[ ! $input =~ -[-rfi]{0,3} ]]
+            then 
+            help; exit 1
+            fi
         ;; 
-        l) l=true #listing all files in the recycle bin
-        ;;
-        e) e=true echo e is selected
-        #empty all files in recycle bin
+        p) mode=put
         ;;
         \?) echo not a valid option; exit 1
         ;;
     esac
 done
 shift "$(($OPTIND -1))"
-echo $@
 
 #Create the garbage folder if it does not exist
 initiateGarbage (){
@@ -81,28 +82,40 @@ deleteFlags (){
     fi
 }
 
+help (){
+    echo 'help me please'
+    echo docs go here
+}
+
 
 main (){
-    initiateGarbage
+initiateGarbage
 
+if [[ $mode == 'delete' ]]
+then 
+    for i in $@ 
+    do
+        deleteFlags $input $i
+    done
+fi
 
-
-
-
+if [[ $mode == 'put' ]]
+then 
     for i in $@
+    do 
+        restoreFile $i
+    done
+fi
+
+if [[ $mode == 'recycle' ]]
+then
+    for i in $@ 
     do
         if checkGarbage $i
-        then
-            recycleFile $i
-        else
-            echo this file alreaedy exists in your recycle bin.
-            echo please rename in order to avoid overwriting.
+        then 
+            recycleFile $1 
         fi
-        
     done
+fi
 }
-# main $@
-
-# deleteFlags -rfi $1
-
-# deleteFile $1
+main $@
