@@ -41,9 +41,9 @@ checkGarbage (){
 recycleFile (){
     if [[ -f $1 || -d $1 ]]
     then
-        mv $1 $dump
         echo `pwd`/$1 >> $dump/tracker.info
         echo `ls -shc $1`
+        mv $1 $dump
     else
         echo $1 is not a valid file 
     fi
@@ -58,7 +58,8 @@ findOrigin(){
     local origin
     origin=`cat $dump/tracker.info |grep $1`
     echo set from variable
-    return $origin
+    echo $origin
+    #return origin does this work like it would in javascript
 }  
 
 main () {
@@ -75,8 +76,7 @@ main () {
         fi
     done
 }
-# main $@
+main $@
 
 # findOrigin $1
-echo $findOrigin $1
 
