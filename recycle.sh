@@ -1,10 +1,9 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
 
-while getopts ':leg:i' OPTION; 
+while getopts ':pd:' OPTION; 
     do case $OPTION in
-        m) echo m is selected; input=$OPTARG
-        # echo $input
+        d) mode=delete; input=$OPTARG
         ;; 
         l) l=true #listing all files in the recycle bin
         ;;
@@ -74,10 +73,21 @@ deleteFile (){
     fi
 }
 
+deleteFlags (){
+    rm $dump/$2 $1
+    if [[ $? -eq 0 ]]
+    then
+        sed -i "/$2/d" $dump/tracker.info
+    fi
+}
+
 
 main (){
     initiateGarbage
-    echo $input
+
+
+
+
 
     for i in $@
     do
@@ -91,6 +101,8 @@ main (){
         
     done
 }
-main $@
+# main $@
+
+# deleteFlags -rfi $1
 
 # deleteFile $1
