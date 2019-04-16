@@ -41,7 +41,7 @@ checkGarbage (){
 recycleFile (){
     if [[ -f $1 || -d $1 ]]
     then
-        echo `pwd`/$1 >> $dump/tracker.info
+        echo -e `pwd` '\t' $1 >> $dump/tracker.info
         echo `ls -shc $1`
         mv $1 $dump
     else
@@ -56,12 +56,12 @@ listFiles(){
 
 findOrigin(){
     local origin
-    origin=`cat $dump/tracker.info |grep $1`
+    origin=`cat $dump/tracker.info | grep $1 |awk '{print $1}'`
     echo $origin
 }
 
 restoreFile (){
-    mv $dump/$1 `echo $(findOrigin $1)` 
+    mv $dump/$1 `echo $(findOrigin $1)`
 }
 
 
@@ -82,4 +82,5 @@ main () {
 }
 # main $@
 
-restoreFile $1
+# restoreFile $1
+findOrigin $1
