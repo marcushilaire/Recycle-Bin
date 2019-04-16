@@ -1,17 +1,17 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
 
-while getopts ':lem:i' OPTION; 
+while getopts ':leg:i' OPTION; 
     do case $OPTION in
+        m) echo m is selected; input=$OPTARG
+        # echo $input
+        ;; 
         l) l=true #listing all files in the recycle bin
         ;;
         e) e=true echo e is selected
         #empty all files in recycle bin
         ;;
-        m) echo m is selected; input=$OPTARG
-        echo $input
-        ;;
-        \?) echo not a valid option
+        \?) echo not a valid option; exit 1
         ;;
     esac
 done
@@ -38,10 +38,6 @@ checkGarbage (){
     fi
 }
 
-#Move the listed files to the dump and record their original location
-
-
-#List all files in the recycle bin along with their size
 listFiles (){
     ls -sh $dump
 }
@@ -55,6 +51,7 @@ recycleFile (){
         if [[ $? -eq 0 ]]
         then
             echo -e `pwd` '\t' $1 >> $dump/tracker.info
+            echo recycling
             echo `ls -shc $dump/$1`
         fi
 }
@@ -80,6 +77,7 @@ deleteFile (){
 
 main (){
     initiateGarbage
+    echo $input
 
     for i in $@
     do
@@ -93,6 +91,6 @@ main (){
         
     done
 }
-# main $@
+main $@
 
-# restoreFile $1
+# deleteFile $1
