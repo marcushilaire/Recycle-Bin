@@ -58,16 +58,10 @@ findOrigin(){
     local origin
     origin=`cat $dump/tracker.info |grep $1`
     echo $origin
-    #return origin does this work like it would in javascript
-    #it seems to work with echo $origin and echo $(findOrigin $1)
-} #***************** ASK BRIAN ABOUT THIS
+}
 
 restoreFile (){
-    local origin
-    origin=$(findOrigin $1)
-    echo $origin
-    mv $dump/$1 `echo "findOirigin $1"` #not sure why this doesnt work
-    #consider making origin from findOrigin global, using it here then unsetting it
+    mv $dump/$1 `echo $(findOrigin $1)` 
 }
 
 
