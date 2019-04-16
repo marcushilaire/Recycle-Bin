@@ -2,10 +2,14 @@
 dump=`dirname $0`/garbage
 mode=recycle
 
+
 usage (){
-    echo $0
-    echo docs go here
+    echo Descritption
+    echo Recycle files then restore or permantently delete them
+    echo Options
+    echo -p
 }
+
 
 while getopts ':hpd:' OPTION; 
     do case $OPTION in
@@ -23,6 +27,8 @@ while getopts ':hpd:' OPTION;
         ;;
     esac
 done
+echo $1
+
 shift "$(($OPTIND -1))"
 
 #Create the garbage folder if it does not exist
@@ -119,7 +125,7 @@ then
     do
         if checkGarbage $i
         then 
-            recycleFile $1 
+            recycleFile $i
         fi
     done
 fi
