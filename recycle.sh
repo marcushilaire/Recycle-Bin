@@ -1,11 +1,14 @@
 #!/bin/bash
 dump=`dirname $0`/garbage
 mode=recycle
+currentDir=`pwd`
 
 
 usage (){
     echo Descritption
-    echo Recycle files then restore or permantently delete them
+    echo -e $0 [OPTION]... [FILE]"\t" Recycle files then restore or permantently delete them
+    echo Usage
+    
     echo Options
     echo -p
 }
@@ -27,15 +30,13 @@ while getopts ':hpd:' OPTION;
         ;;
     esac
 done
-echo $1
-
 shift "$(($OPTIND -1))"
 
 #Create the garbage folder if it does not exist
 initiateGarbage (){
-if [ ! -d ./garbage ]
+if [[ ! -d $dump || ! -f $dump/tracker.info ]]
     then
-        mkdir $dump
+        mkdir $dump 2> /dev/null
         touch $dump/tracker.info
         echo garbage created
 fi
@@ -70,30 +71,27 @@ recycleFile (){
 }
 
 restoreFile (){
-    local origin
+    local origin escaped
     origin=`echo $(findOrigin $1)`
+    escaped=`echo $1| sed -e 's/\/$//'`
     mv $dump/$1 $origin
     if [[ $? -eq 0 ]]
     then
-        sed -i "/$1/d" $dump/tracker.info
+        sed -i "/$escaped/d" $dump/tracker.info
     fi
 }
 
-deleteFile (){
-    rm $dump/$1
-    if [[ $? -eq 0 ]]
-    then
-        sed -i "/$1/d" $dump/tracker.info
-    fi
-}
 
 deleteFlags (){
+    local escaped
+    escaped=`echo $2| sed -e 's/\/$//'`
     rm $dump/$2 $1
     if [[ $? -eq 0 ]]
     then
-        sed -i "/$2/d" $dump/tracker.info
+        sed -i "/$escaped/d" $dump/tracker.info
     fi
 }
+
 
 main (){
 initiateGarbage
@@ -103,22 +101,29 @@ then
     usage; exit 1
 fi
 
+#Delete files
 if [[ $mode == 'delete' ]]
 then 
+cd $dump
     for i in $@ 
     do
         deleteFlags $input $i
     done
+cd $currentDir
 fi
 
+#Restore files
 if [[ $mode == 'put' ]]
 then 
+cd $dump
     for i in $@
     do 
         restoreFile $i
     done
+cd $currentDir
 fi
 
+#Recycle Files
 if [[ $mode == 'recycle' ]]
 then
     for i in $@ 
