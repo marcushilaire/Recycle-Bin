@@ -25,15 +25,19 @@ then
     exit 1
 fi
 
-while getopts ':hpd:' OPTION; 
+while getopts ':hpPDd:' OPTION; 
     do case $OPTION in
         d) mode=delete; input=$OPTARG;
             if [[ ! $input =~ -[-rfi]{0,3} ]]
             then 
             usage; exit 1
             fi
-        ;; 
+        ;;
+        D) mode=Dall 
+        ;;
         p) mode=put
+        ;;
+        P)mode=Pall
         ;;
         h) usage; exit 1
         ;;
@@ -45,10 +49,10 @@ shift "$(($OPTIND -1))"
 
 #Create the garbage folder if it does not exist
 initiateGarbage (){
-if [[ ! -d $dump || ! -f $dump/tracker.info ]]
+if [[ ! -d $dump || ! -f $dump/.tracker ]]
     then
         mkdir $dump 2> /dev/null
-        touch $dump/tracker.info
+        touch $dump/.tracker
         echo garbage created
 fi
 }
@@ -68,17 +72,24 @@ listFiles (){
 }
 
 findOrigin (){
-    echo `cat $dump/tracker.info | grep $1 |awk '{print $1}'`
+    echo `cat $dump/.tracker | grep $1 |awk '{print $1}'`
 }
 
 recycleFile (){
         mv $1 $dump  
         if [[ $? -eq 0 ]]
         then
-            echo -e `pwd` '\t' $1 >> $dump/tracker.info
+            echo -e `pwd` '\t' $1 >> $dump/.tracker
             echo recycling
             echo `ls -shc $dump/$1`
         fi
+}
+
+restoreAll (){
+    for i in $dump
+    do
+    echo $i
+    done
 }
 
 restoreFile (){
@@ -88,7 +99,7 @@ restoreFile (){
     mv $dump/$1 $origin
     if [[ $? -eq 0 ]]
     then
-        sed -i "/$escaped/d" $dump/tracker.info
+        sed -i "/$escaped/d" $dump/.tracker
     fi
 }
 
@@ -99,7 +110,7 @@ deleteFlags (){
     rm $dump/$2 $1
     if [[ $? -eq 0 ]]
     then
-        sed -i "/$escaped/d" $dump/tracker.info
+        sed -i "/$escaped/d" $dump/.tracker
     fi
 }
 
@@ -107,6 +118,22 @@ deleteFlags (){
 main (){
 initiateGarbage
 
+#Delete All
+if [[ $mode == 'Dall' ]]
+then
+rm -rf $dump/*
+sed -i '1,$d' $dump/.tracker
+exit 0
+fi
+
+#Restore All
+if [[ $mode == 'Pall' ]]
+then 
+echo $mode
+exit 0
+fi
+
+#Check for args
 if [[ $# -eq 0 ]]
 then
     usage; exit 1
@@ -122,6 +149,8 @@ cd $dump
     done
 cd $currentDir
 fi
+
+
 
 #Restore files
 if [[ $mode == 'put' ]]
