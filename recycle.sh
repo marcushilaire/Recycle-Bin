@@ -10,12 +10,17 @@ usage (){
     echo -e "$0 [OPTION]... [FILE]... \n"
     echo "Options"
     echo -e "Put mode and Delete mode are mutually exclusive\n"
-    echo -e "-h \t Display this help page"
-    echo -e "-p [FILE]... Put mode. Restore one to many files"
-    echo -e "-d [OPTION]... [FILE]... Delete mode. Delete one to many files. Allows for commands found in RM"
+    echo -e "-h Display this help page"
+    echo -e "-L List all files and their sizes in the recycle bin"
+    echo -e "-P Restore all files in the recycle bin"
+    echo -e "-p [FILE]... PUT MODE. Restore one to many files"
+    echo -e "-D Permanently delete all files in recycle bin"
+    echo -e "-d [OPTION]... [FILE]... DELETE MODE. Delete one to many files. Allows for commands found in RM"
+    echo -e "\t -- Proceed to delete without any rm options"
     echo -e "\t -r Recursive"
     echo -e "\t -i Interactive"
     echo -e "\t -f Force"
+    echo -e "\t all sub options must be defined under the same flag [-]"
     echo -e "Example \t $0 -d -rfi fileOne directoryOne"
 }
 
@@ -25,7 +30,7 @@ then
     exit 1
 fi
 
-while getopts ':hpPDd:' OPTION; 
+while getopts ':hpLPDd:' OPTION; 
     do case $OPTION in
         d) mode=delete; input=$OPTARG;
             if [[ ! $input =~ -[-rfi]{0,3} ]]
@@ -37,7 +42,9 @@ while getopts ':hpPDd:' OPTION;
         ;;
         p) mode=put
         ;;
-        P)mode=Pall
+        P) mode=Pall
+        ;;
+        L) ls -sh $dump; exit 1
         ;;
         h) usage; exit 1
         ;;
@@ -65,10 +72,6 @@ checkGarbage (){
     else
         return 0
     fi
-}
-
-listFiles (){
-    ls -sh $dump
 }
 
 findOrigin (){
@@ -103,7 +106,6 @@ restoreFile (){
     fi
 }
 
-
 deleteFlags (){
     local escaped
     escaped=`echo $2| sed -e 's/\/$//'`
@@ -114,23 +116,26 @@ deleteFlags (){
     fi
 }
 
-
 main (){
 initiateGarbage
 
 #Delete All
 if [[ $mode == 'Dall' ]]
 then
-rm -rf $dump/*
-sed -i '1,$d' $dump/.tracker
-exit 0
+    rm -rf $dump/*
+    sed -i '1,$d' $dump/.tracker
+    exit 0
 fi
 
 #Restore All
 if [[ $mode == 'Pall' ]]
 then 
-echo $mode
-exit 0
+    allFiles=`cat $dump/.tracker | awk '{print $2}'`
+    for i in $allFiles
+    do
+        restoreFile $i
+    done
+    exit 0
 fi
 
 #Check for args
@@ -149,8 +154,6 @@ cd $dump
     done
 cd $currentDir
 fi
-
-
 
 #Restore files
 if [[ $mode == 'put' ]]
