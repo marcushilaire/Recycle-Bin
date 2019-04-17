@@ -88,13 +88,6 @@ recycleFile (){
         fi
 }
 
-restoreAll (){
-    for i in $dump
-    do
-    echo $i
-    done
-}
-
 restoreFile (){
     local origin escaped
     origin=`echo $(findOrigin $1)`
