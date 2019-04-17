@@ -4,15 +4,26 @@ mode=recycle
 currentDir=`pwd`
 
 
+
 usage (){
-    echo Descritption
-    echo -e $0 [OPTION]... [FILE]"\t" Recycle files then restore or permantently delete them
-    echo Usage
-    
-    echo Options
-    echo -p
+    echo -e "Description: Recycle files then restore or permantently delete them \n"
+    echo -e "$0 [OPTION]... [FILE]... \n"
+    echo "Options"
+    echo -e "Put mode and Delete mode are mutually exclusive\n"
+    echo -e "-h \t Display this help page"
+    echo -e "-p [FILE]... Put mode. Restore one to many files"
+    echo -e "-d [OPTION]... [FILE]... Delete mode. Delete one to many files. Allows for commands found in RM"
+    echo -e "\t -r Recursive"
+    echo -e "\t -i Interactive"
+    echo -e "\t -f Force"
+    echo -e "Example \t $0 -d -rfi fileOne directoryOne"
 }
 
+if [[ $1 =~ -[pd]{2} ]]
+then
+    usage
+    exit 1
+fi
 
 while getopts ':hpd:' OPTION; 
     do case $OPTION in
@@ -26,7 +37,7 @@ while getopts ':hpd:' OPTION;
         ;;
         h) usage; exit 1
         ;;
-        \?) echo not a valid option; exit 1
+        \?) usage; exit 1
         ;;
     esac
 done
